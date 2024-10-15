@@ -1,7 +1,3 @@
-
-# Instalar paquetes necesarios
-install.packages(c("tidyverse", "tm", "e1071", "caret"))
-
 # Cargar librerías
 library(tidyverse)
 library(tm)
@@ -12,18 +8,32 @@ library(caret)
 df <- read.csv("C:/Users/pajua/Desktop/Programacion/review_analyser/netflix_reviews.csv")
 
 # Preprocesamiento de texto
+library(tm)
+
+# Cargar el archivo CSV con las reseñas
+df <- read.csv("C:/Users/pajua/Desktop/Programacion/review_analyser/netflix_reviews.csv")
+
+# Preprocesamiento de texto
+library(tm)
+
 clean_text <- function(text) {
   if (is.na(text) | text == "") {
     return("")
   } else {
     text <- tolower(text)
-    text <- removePunctuation(text)
-    text <- removeNumbers(text)
+    text <- gsub("[[:punct:]]", "", text)  # Utiliza gsub para eliminar puntuaciones
+    text <- gsub("[[:digit:]]", "", text)  # Utiliza gsub para eliminar números
     text <- removeWords(text, stopwords("en"))
-    text <- stripWhitespace(text)
+    text <- gsub("\\s+", " ", text)  # Utiliza gsub para eliminar espacios en blanco adicionales
     return(text)
   }
 }
+
+# Aplicar limpieza de texto a la columna de reseñas
+df$cleaned_review <- sapply(df$content, clean_text)
+
+# Aplicar limpieza de texto a la columna de reseñas
+df$cleaned_review <- sapply(df$content, clean_text)
 # Aplicar limpieza de texto a la columna de reseñas
 df$cleaned_review <- sapply(df$content, clean_text)
 

@@ -1,5 +1,5 @@
 # Definir servidor
-shinyServer(function(input, output) {
+server <- shinyServer(function(input, output) {
   # Crear una variable reactiva para almacenar el archivo cargado
   archivo_cargado <- reactive({
     req(input$archivo)

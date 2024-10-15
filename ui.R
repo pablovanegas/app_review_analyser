@@ -1,5 +1,5 @@
 # Definir interfaz de usuario
-shinyUI(fluidPage(
+ui <- shinyUI(fluidPage(
   # Título de la aplicación
   titlePanel("Análisis de reseñas"),
   
@@ -14,9 +14,16 @@ shinyUI(fluidPage(
                   choices = c("Frecuencia de palabras", "Distribución de puntuaciones", "Análisis de sentimiento", "Todos")),
       
       # Seleccionar columna de texto
+      
+      # Este es el caso de que solo sea un producto
+      
       selectInput("reviews", "Columna con reseñas", choices = NULL),
       
       selectInput("puntuaciones", "Columna de puntuaciones", choices = NULL),
+      
+      # Para el caso de que sean varios productos 
+      
+      selectInput('productos', 'Columna lista de Productos', choices = NULL),
       
       
       
@@ -31,3 +38,5 @@ shinyUI(fluidPage(
     )
   )
 ))
+
+shinyApp(ui = ui, server = server)
