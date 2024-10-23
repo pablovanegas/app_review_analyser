@@ -1,4 +1,3 @@
-# Definir servidor
 server <- shinyServer(function(input, output, session) {
   
   archivo_cargado <- reactive({
@@ -20,11 +19,6 @@ server <- shinyServer(function(input, output, session) {
                 selected = NULL)
   })
   
-  output$resultadoDisponible <- reactive({
-    return(!is.null(input$ejecutar_analisis) && input$ejecutar_analisis > 0)
-  })
-  outputOptions(output, "resultadoDisponible", suspendWhenHidden = FALSE)
-  
   observeEvent(input$ejecutar_analisis, {
     tipo_analisis <- input$tipo_analisis
     archivo <- archivo_cargado()
@@ -44,20 +38,23 @@ server <- shinyServer(function(input, output, session) {
       paste(words, collapse = " ")
     })
     
-    if (tipo_analisis == "Frecuencia de palabras") {
+    # Análisis de Frecuencia de Palabras
+    if (tipo_analisis == "Frecuencia de palabras" || tipo_analisis == "Todos") {
       word_freq <- archivo %>%
         unnest_tokens(word, texto) %>%
         count(word, sort = TRUE) %>%
         filter(!word %in% stop_words$word)
       
-      output$grafica <- renderPlot({
+      output$grafica_frecuencia <- renderPlot({
         wordcloud(words = word_freq$word, freq = word_freq$n, 
                   max.words = 100, min.freq = 1, 
                   random.order = FALSE, rot.per = 0.35,
                   colors = brewer.pal(8, "Dark2"))
       })
-      
-    } else if (tipo_analisis == "Distribución de puntuaciones") {
+    }
+    
+    # Análisis de Distribución de Puntuaciones
+    if (tipo_analisis == "Distribución de puntuaciones" || tipo_analisis == "Todos") {
       if (is.null(input$puntuaciones) || input$puntuaciones == "") {
         showNotification("Por favor, selecciona una columna de puntuaciones.", type = "error")
         return()
@@ -65,15 +62,17 @@ server <- shinyServer(function(input, output, session) {
       
       score_counts <- archivo %>% count(!!sym(input$puntuaciones))
       
-      output$grafica <- renderPlot({
+      output$grafica_puntuaciones <- renderPlot({
         ggplot(score_counts, aes(x = !!sym(input$puntuaciones), y = n)) + 
           geom_bar(stat = "identity", fill = "steelblue") + 
           labs(x = "Puntuación", y = "Frecuencia", 
                title = "Distribución de puntuaciones") + 
           theme_minimal()
       })
-      
-    } else if (tipo_analisis == "Análisis de sentimiento") {
+    }
+    
+    # Análisis de Sentimiento
+    if (tipo_analisis == "Análisis de sentimiento" || tipo_analisis == "Todos") {
       sentiment_counts <- archivo %>%
         mutate(sentimiento = sentimentr::sentiment(archivo[[input$columna_reseñas]]) %>% 
                  group_by(element_id) %>%
@@ -83,7 +82,7 @@ server <- shinyServer(function(input, output, session) {
                                     ifelse(sentimiento < 0, "negativo", "neutro"))) %>%
         count(sentimiento)
       
-      output$grafica <- renderPlot({
+      output$grafica_sentimiento <- renderPlot({
         ggplot(sentiment_counts, aes(x = sentimiento, y = n, fill = sentimiento)) + 
           geom_bar(stat = "identity") + 
           scale_fill_manual(values = c("positivo" = "green", "negativo" = "red", "neutro" = "gray")) + 
