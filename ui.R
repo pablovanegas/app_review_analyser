@@ -7,6 +7,7 @@ library(ggplot2)
 library(wordcloud)
 library(sentimentr)
 library(tidytext)
+
 # Definir interfaz de usuario
 ui <- dashboardPage(
   dashboardHeader(title = "Análisis de Reseñas"),
@@ -14,8 +15,7 @@ ui <- dashboardPage(
   dashboardSidebar(
     width = 300,  # Aumenta el ancho de la barra lateral
     sidebarMenu(
-      menuItem("Cargar Datos", tabName = "cargar", icon = icon("upload")),
-      menuItem("Resultados", tabName = "resultados", icon = icon("chart-bar"))
+      menuItem("Cargar Datos", tabName = "cargar", icon = icon("upload"))
     ),
     fileInput("archivo", "Cargar archivo CSV", 
               accept = c(".csv"),
@@ -30,7 +30,7 @@ ui <- dashboardPage(
                 selected = "Frecuencia de palabras"),
     uiOutput("columnaReseñasUI"),
     conditionalPanel(
-      condition = "input.tipo_analisis == 'Distribución de puntuaciones'",
+      condition = "input.tipo_analisis == 'Distribución de puntuaciones' || input.tipo_analisis == 'Todos'",
       uiOutput("columnaPuntuacionesUI")
     ),
     actionButton("ejecutar_analisis", "Ejecutar análisis", 
@@ -49,17 +49,15 @@ ui <- dashboardPage(
         }
       "))
     ),
-    tabItems(
-      tabItem(tabName = "resultados",
-              fluidRow(
-                box(
-                  title = "Resultados del análisis",
-                  status = "primary",
-                  solidHeader = TRUE,
-                  width = 12,
-                  plotOutput("grafica", height = "800px")  # Aumenta la altura del gráfico
-                )
-              )
+    fluidRow(
+      box(
+        title = "Resultados del análisis",
+        status = "primary",
+        solidHeader = TRUE,
+        width = 12,
+        plotOutput("grafica_frecuencia", height = "400px"),
+        plotOutput("grafica_puntuaciones", height = "400px"),
+        plotOutput("grafica_sentimiento", height = "400px")
       )
     )
   )
